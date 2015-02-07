@@ -298,6 +298,100 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 115 };
 		}
 
+
+
+        //LITECOIN
+        static Network _Litecoin;
+        public static Network Litecoin
+        {
+            get
+            {
+                if (_Litecoin == null)
+                {
+                    var instance = new Network();
+                    instance.InitLitecoin();
+                    _Litecoin = instance;
+                }
+                return _Litecoin;
+            }
+        }
+        private void InitLitecoin()
+        {
+            SpendableCoinbaseDepth = 100;
+            name = "Litecoin";
+            // The message start string is designed to be unlikely to occur in normal data.
+            // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
+            // a large 4-byte int at any alignment.
+            magic = 0xD9B4BEF9;//NC
+            vAlertPubKey = DataEncoders.Encoders.Hex.DecodeData("04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284");//NC
+            nDefaultPort = 8333;//NC
+            nRPCPort = 8332;//NC
+            _ProofOfLimit = new Target(~new uint256(0) >> 32);//NC
+            nSubsidyHalvingInterval = 210000;//NC
+
+            Transaction txNew = new Transaction();
+            txNew.Version = 1;
+            txNew.Inputs.Add(new TxIn());
+            txNew.Outputs.Add(new TxOut());
+            txNew.Inputs[0].ScriptSig = new Script(DataEncoders.Encoders.Hex.DecodeData("04ffff001d0104404e592054696d65732030352f4f63742f32303131205374657665204a6f62732c204170706c65e280997320566973696f6e6172792c2044696573206174203536"));
+            txNew.Outputs[0].Value = 50 * Money.COIN;
+            txNew.Outputs[0].ScriptPubKey = new Script() + DataEncoders.Encoders.Hex.DecodeData("040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9") + OpcodeType.OP_CHECKSIG;//NC
+            genesis.Transactions.Add(txNew);
+            genesis.Header.HashPrevBlock = 0;
+            genesis.Header.HashMerkleRoot = genesis.ComputeMerkleRoot();
+            genesis.Header.Version = 1;
+            genesis.Header.BlockTime = Utils.UnixTimeToDateTime(1317972665);
+            genesis.Header.Bits = 0x1e0ffff0;
+            genesis.Header.Nonce = 2084524493;
+
+            hashGenesisBlock = genesis.GetHash();
+            assert(hashGenesisBlock == new uint256("0xf5ae71e26c74beacc88382716aced69cddf3dffff24f384e1808905e0188f68f"));
+            assert(genesis.Header.HashMerkleRoot == new uint256("0x97ddfbbae6be97fd6cdf3e7ca13232a3afff2353e29badfab7f73011edd4ced9"));
+#if !PORTABLE
+            vSeeds.Add(new DNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be"));//NC
+            vSeeds.Add(new DNSSeedData("bluematt.me", "dnsseed.bluematt.me"));//NC
+            vSeeds.Add(new DNSSeedData("dashjr.org", "dnsseed.bitcoin.dashjr.org"));//NC
+            vSeeds.Add(new DNSSeedData("bitcoinstats.com", "seed.bitcoinstats.com"));//NC
+            vSeeds.Add(new DNSSeedData("bitnodes.io", "seed.bitnodes.io"));//NC
+            vSeeds.Add(new DNSSeedData("xf2.org", "bitseed.xf2.org"));//NC
+#endif
+            base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (0x30) };
+            base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (0x05) };
+            base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (0xb0) };
+            base58Prefixes[(int)Base58Type.ENCRYPTED_SECRET_KEY_NO_EC] = new byte[] { 0x01, 0x42 };//NC
+            base58Prefixes[(int)Base58Type.ENCRYPTED_SECRET_KEY_EC] = new byte[] { 0x01, 0x43 };//NC
+            base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x01), (0x9d), (0xa4), (0x62) };
+            base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x01), (0x9d), (0x9c), (0xfe) };//NC
+            base58Prefixes[(int)Base58Type.PASSPHRASE_CODE] = new byte[] { 0x2C, 0xE9, 0xB3, 0xE1, 0xFF, 0x39, 0xE2 };//NC
+            base58Prefixes[(int)Base58Type.CONFIRMATION_CODE] = new byte[] { 0x64, 0x3B, 0xF6, 0xA8, 0x9A };//NC
+            base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x2a };//NC
+            base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 23 };//NC
+            base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };//NC
+
+            // Convert the pnSeeds array into usable address objects.
+            Random rand = new Random();
+            TimeSpan nOneWeek = TimeSpan.FromDays(7);
+#if !PORTABLE
+            for (int i = 0; i < pnSeed.Length; i++)
+            {
+                // It'll only connect to one or two seed nodes because once it connects,
+                // it'll get a pile of addresses with newer timestamps.
+                IPAddress ip = IPAddress.Parse(pnSeed[i]);
+                NetworkAddress addr = new NetworkAddress();
+                // Seed nodes are given a random 'last seen time' of between one and two
+                // weeks ago.
+                addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
+                addr.Endpoint = new IPEndPoint(ip, DefaultPort);
+                vFixedSeeds.Add(addr);
+            }
+#endif
+        }
+        //END LITECOIN
+
+
+
+
+
 		private static void assert(bool v)
 		{
 			if(!v)
